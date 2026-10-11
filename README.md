@@ -33,29 +33,27 @@ Beyond the two official sub-tasks, we conducted a self-initiated investigation o
 ## Pipeline
 
 ### Generation
-```
-Reference face crops ──► PuLID ──┐
-                                 ├──► FLUX.1-dev (DiT) ──► clean fake ──► PGD × 25 ──► adversarial image
-MediaPipe FaceMesh → OpenPose ──► ControlNet ──┘                            │
-                                                                            └── 12 detectors (simultaneous)
-                                                                                DiffJPEG (ε=2/255, Q=80 in-loop)
-                                                                                MI (μ=1.0) + DI (p=0.5) + EoT
-```
+
+![Generation Pipeline — Figure 1 from paper](figures/generation_pipeline.png)
+
+**Base generation pipeline for one identity** *(Figure 1 in paper, ID_139 frame 3)*:
+(a) PuLID reference crop (one of up to 20 per identity) → (b) competition-supplied MediaPipe landmark map → (c) our OpenPose-style ControlNet input → (d) final submission image.
+
+Panel (d) is generated at 512×512 by **FLUX.1-dev** with **PuLID** identity injection and **OpenPose-style ControlNet** conditioning, downsampled to 256×256, then perturbed by our custom PGD attack. The attack runs 25 iterations against **12 white-box detectors simultaneously**, with ε=2/255 and α=0.5/255, using momentum (μ=1.0), DiffJPEG-Q80-in-loop, Input Diversity (p=0.5), and implicit Expectation over Transformation. The resulting ε=2/255 perturbation is visually imperceptible.
 
 ### Detection
-```
-Input ──► pHash short-circuit ──► Fake?
-   │             │
-   │           No match
-   ▼
-SigLIP+DINOv2 ─── p_ai
-GenD-DINOv3   ─── p_fm
-         │
-   max(p_ai, p_fm) > 0.5  OR  min(p_ai, p_fm) > τ_min  →  Fake
-                                          else           →  Real
-```
+
+![Detection Pipeline](figures/detection_pipeline.png)
+
+**Two-specialist ensemble with perceptual-hash short-circuit:**
+- **pHash matching** against our 1,002 submitted images — exact match → immediate **Fake**
+- Otherwise two detectors run in parallel:
+  - **SigLIP+DINOv2** → *p₁* (AI-generated specialist)
+  - **GenD-DINOv3** → *p₂* (face-manipulation specialist)
+- Decision rule: `max(p₁, p₂) > 0.5` **OR** `min(p₁, p₂) > 0.04` → **Fake**, else **Real**
 
 ### Further Experiments (Purification)
+
 ```
 Input x ──┐
           ├──► EFFORT (CLIP ViT-L/14 + SVD residual) ──► logit f(x)
