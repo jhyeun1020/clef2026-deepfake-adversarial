@@ -3,12 +3,14 @@
 
 [![Paper](https://img.shields.io/badge/paper-CEUR--WS-blue)](paper/imageclef_camera_ready.pdf)
 [![Slides](https://img.shields.io/badge/slides-PDF-orange)](presentation/)
+[![Leaderboard](https://img.shields.io/badge/official-leaderboard-red)](https://www.imageclef.org/2026/deepfake-detection-and-generation)
 [![Conference](https://img.shields.io/badge/CLEF-2026-green)](https://clef2026.clef-initiative.eu/)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
 > One attacker–defender exchange across three tracks: a transferable adversarial generation pipeline, a complementary dual-specialist detection ensemble, and a weight-free purification signal for flagging adversarial inputs.
 
 Presented at **CLEF 2026**, Friedrich-Schiller-Universität Jena, Germany (Sep 24, 2026).
+Official task page and final leaderboard: **[imageclef.org/2026/deepfake-detection-and-generation](https://www.imageclef.org/2026/deepfake-detection-and-generation)**
 
 ---
 
@@ -21,6 +23,8 @@ This repository contains the code, paper, and presentation materials for our sub
 | **Generation** | FLUX.1-dev + ControlNet + PuLID + custom 12-detector PGD (DiffJPEG-in-loop, MI/DI/EoT) | **0.4170** (90% evasion on organizer, 58% on participant detectors) |
 | **Detection** | Two-specialist ensemble (SigLIP+DINOv2 × GenD-DINOv3) with max-probability rule and τ_min calibration | **0.6986** (99.4% baseline-fake, 82% participant-fake accuracy) |
 | **Further Experiments** | Input-space purification: raw \|Δlogit\| under median-3 through EFFORT | **AUROC 0.81–0.98** across four adversarial source types |
+
+> Full participant rankings for both sub-tasks: **[ImageCLEF 2026 Deepfake official leaderboard →](https://www.imageclef.org/2026/deepfake-detection-and-generation)**
 
 Beyond the two official sub-tasks, we conducted a self-initiated investigation of purification-based adversarial detection, comparing three signal families across six detectors sharing a CLIP ViT-L/14 backbone. The strongest signal — raw \|Δlogit\| under median-3 purification through the EFFORT detector — refutes a simple backbone-preservation hypothesis and exposes a sharp **JPEG-quality cliff at Q70** where the signal collapses.
 
